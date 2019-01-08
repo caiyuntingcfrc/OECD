@@ -37,7 +37,7 @@ fill <- scale_fill_manual("",
                           values = c("Taiwan" = "tan1", "A" = "springgreen3", "T" = "turquoise2", "f2" = "whitesmoke", "f3" = "black", "f4" = "red"),
                           guide = "legend")
 
-colour <- scale_colour_manual(values = c("c1" = "snow4", "c2" = "snow4", "c3" = "snow4", "c4" = "red"), guide = "legend")
+colour <- scale_colour_manual(values = c("c1" = "snow4", "c2" = "snow4", "c3" = "snow4", "c4" = "red"), guide = FALSE)
 
 shape <- scale_shape_manual(values = c("s1" = 23, "s2" = 23, "s3" = 3), guide = "legend")
     
