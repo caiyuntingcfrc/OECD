@@ -35,27 +35,27 @@ bar <- geom_bar(aes(y = `2016`, fill = `member`), colour = "snow1", stat = "iden
 
 #points
 c <- melt(df[ , c("country", "1970", "1995", "replacement rate")], id.vars = "country")
-point <- geom_point(data = c, aes(x = `country`, y = `value`, fill = `variable`, colour = "snow1", 
-                                  shape = `variable`), size = 3)
+point <- geom_point(data = c, aes(x = `country`, y = `value`, fill = `variable`, 
+                                  shape = `variable`), colour = "snow1", size = 3)
 
 #custom fill and color
-fill <- scale_fill_manual("A"
+fill <- scale_fill_manual("AAA",
                           labels = c("a", "b", "c"), 
                           #labels = c("f2" = "1995", "f3" = "1997", "f4" = "replacement rate"), 
                           values = c("Taiwan" = "tan1", "A" = "springgreen3", "OECD" = "turquoise2", 
-                                     "1970" = 23, "1995" = 23, "replacement rate" = 1),
-                          breaks = c("A", "OECD", "Taiwan")
+                                     "1970" = "grey", "1995" = "green", "replacement rate" = "red"), 
+                          breaks = c("1970", "1995", "replacement rate")
                           )
 
-colour <- scale_colour_manual("B", 
-                              labels = c("a", "b", "c"), 
+colour <- scale_colour_manual("AAA", 
+                              labels = c("a", "b", "c") 
                               #labels = c("Taiwan" = "Taiwan", "A" = "OECD-average", "T" = "OECD", "c2" = "1995", "c3" = "1997", "c4" = "replacement rate"), 
-                              guide = FALSE)
+                              )
 
-shape <- scale_shape_manual("C", 
+shape <- scale_shape_manual("AAA", 
                             labels = c("a", "b", "c"), 
                             #labels = c("s2" = "1995", "s3" = "1997", "s4" = "replacement rate"), 
-                            values = c(23, 23, 3)
+                            values = c(23, 23, 24)
                             )
     
 #labels
@@ -82,7 +82,7 @@ theme <- theme(axis.text.x = element_text(family = "mono", angle = 45, hjust = 1
 #axis y
 axis.y <- scale_y_continuous(expand = c(0, 0), limits = c(0, 6))
 
-p <- gg + bar + point + fill + shape +lab + theme + axis.y
+p <- gg + bar + point + shape + fill + lab + theme + axis.y
 
 p
 
