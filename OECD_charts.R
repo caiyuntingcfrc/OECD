@@ -13,7 +13,7 @@ vignette("ggplot2-specs")
 ####################
 
 #read and manipulate data
-xls <- "~/Downloads/¡¯SF_2_1_Fertility_rates_LUNG.xlsx"
+xls <- "c:/Users/user/Downloads/¡¯SF_2_1_Fertility_rates_LUNG.xlsx"
 df <- read_xlsx(xls, sheet = 1, range = "L5:Q62", col_names = TRUE)
 head(df)
 colnames(df) <- c("country", "NA", "replacement rate", "1970", "1995", "2016")
@@ -86,7 +86,7 @@ p <- ggplot() +
            ) +
     #labels
     labs(title = "Chart SF2.1.A. Total fertility rate, 1970, 1995 and 2016 or latest available", 
-         subtitle = "Average number of children born per woman over a lifetime given current age-specific fertility rates and assuming no female mortality during reproductive years", 
+         subtitle = "Average number of children born per woman over a lifetime \ngiven current age-specific fertility rates and \nassuming no female mortality during reproductive years", 
          caption = "source: "
          ) + 
     #customization
@@ -109,4 +109,4 @@ p <- ggplot() +
     #axis y
     scale_y_continuous(expand = c(0, 0), limits = c(0, 6)) ; p
 #export the plot
-ggsave(filename = "~/Desktop/tst2_plot.png", width = 16, height = 9, dpi = 600)
+ggsave(filename = "C:/Users/user/Pictures/tst2_plot.png", width = 10, height = 6, dpi = 300)
