@@ -268,3 +268,4 @@ weighed <- mapply(rep, n, times = x)
 l <- unlist(weighed, use.names = FALSE)
 # freq table
 epiDisplay::tab1(l, decimal = 2, graph = TRUE)
+
