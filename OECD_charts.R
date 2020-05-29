@@ -1,20 +1,86 @@
-library(readxl)
-library(ggplot2)
-library(extrafont)
-library(tidyverse)
-library(reshape2)
-loadfonts(device = "pdf")
 
-rm(list = ls())
+# prep and options --------------------------------------------------------
+
+# rm and clear console
+rm(list = ls()); cat("\14")
+devtools::source_url("https://raw.githubusercontent.com/caiyuntingcfrc/misc/function_poverty/func_ins.pack.R")
+# setwd
+setwd("d:/R_wd/")
+# option: scipen
+options(scipen = 999)
+# library
+ins.pack("readxl", "ggplot2", "tidyverse", 
+         "extrafont", "reshape2")
+# fonts
+loadfonts(device = "pdf")
 
 #####references#####
 #aes specs
 vignette("ggplot2-specs")
-####################
+
+
+# # SF 1.1 Family size and Composition --------------------------------------
+# 
+# # read excel file
+# xls <- "demo_dashboard/[2020_May_11]SF_1_1_Family_size_and_composition graph update.xlsx"
+# df <- read_xlsx(xls, 
+#                 # worksheet 1
+#                 sheet = 1, 
+#                 # range
+#                 range = "L5:P50", 
+#                 # column names
+#                 col_names = c("country", 
+#                               NA_character_, 
+#                               "All households", 
+#                               "Couple households with children", 
+#                               "Single parent households with children")) %>% 
+#     # remove empty column
+#     select(-2)
+# 
+# # save file (rds format)
+# saveRDS(df, file = "SF1.1.rds")
+
+# read file ---------------------------------------------------------------
+
+df <- read_rds("SF1.1.rds")
+df <- df[rowSums(is.na(df)) != ncol(df), ]
+
+df <- df %>% 
+    mutate(country = factor(country, levels = country), 
+           member = case_when(country == "Taiwan" ~ "Taiwan", 
+                              country == "OECD average" ~ "A", 
+                              row.names(df) %in% 40:46 ~ "non-OECD", 
+                              TRUE ~ "OECD"), 
+           group = case_when(member == "Taiwan" ~ 0, 
+                             member == "A" ~ 0,
+                             member == "OECD" ~ 0,
+                             TRUE ~ 1
+                             )
+           )
+
+# plot --------------------------------------------------------------------
+
+p <- ggplot() + 
+    # bar
+    geom_bar(data = df, 
+             aes(x = `country`, y = `All households`, 
+                 fill = `member`), 
+             stat = "identity") + 
+    ggthemes::theme_excel_new() + 
+    theme(axis.text.x = element_text(angle = 90, 
+                                     hjust = 1, 
+                                     vjust = 0.3))
+p
+
+
+
+
+# SF 2.1 Fertility Rate ---------------------------------------------------
 
 #read and manipulate data
 xls <- "c:/Users/user/Downloads/¡¯SF_2_1_Fertility_rates_LUNG.xlsx"
-df <- read_xlsx(xls, sheet = 1, range = "L5:Q62", col_names = TRUE)
+df <- read_xlsx(xls, sheet = 1, 
+                range = "L5:Q62", col_names = TRUE)
 head(df)
 colnames(df) <- c("country", "NA", "replacement rate", "1970", "1995", "2016")
 colnames(df)
@@ -51,7 +117,7 @@ axiscolor <- ifelse(df$country == "Taiwan", "tan4",
 #Plot
 p <- ggplot() +
     #barplot
-    geom_bar(data = df, aes(x = df$country, y = `2016`, fill = `member`), 
+    geom_bar(data = df, aes(x = `country`, y = `2016`, fill = `member`), 
              colour = "grey", stat = "identity", width = 0.7, position = position_dodge()) + 
     #points
     geom_point(data = melt(df[ , c("country", "1970", "1995")], id.vars = "country"), 
