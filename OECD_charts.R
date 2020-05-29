@@ -65,8 +65,9 @@ p <- ggplot() +
     geom_bar(data = df, 
              aes(x = `country`, y = `All households`, 
                  fill = `member`), 
+             width = .5, 
              stat = "identity") + 
-    ggthemes::theme_excel_new() + 
+    ggthemes::theme_pander() + 
     theme(axis.text.x = element_text(angle = 90, 
                                      hjust = 1, 
                                      vjust = 0.3))
