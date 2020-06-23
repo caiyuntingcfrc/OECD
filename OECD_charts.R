@@ -10,7 +10,8 @@ setwd("d:/R_wd/")
 options(scipen = 999)
 # library
 ins.pack("readxl", "ggplot2", "tidyverse", 
-         "extrafont", "reshape2")
+         "extrafont", "reshape2", 
+         "plotly")
 # fonts
 loadfonts(device = "pdf")
 
@@ -42,44 +43,87 @@ vignette("ggplot2-specs")
 
 # read file ---------------------------------------------------------------
 
-df <- read_rds("SF1.1.rds")
+df <- read_rds("d:/R_wd/demo_dashboard/SF1.1/SF1.1.rds")
+
+df[ , 2:4] <- sapply(df[ , 2:4], round, 2)
+
+df$id <- NULL
+df$country <- as.character(df$country)
+
+lapply(df, class)
 df <- df[rowSums(is.na(df)) != ncol(df), ]
 
 df <- df %>% 
+    select(-c(`Couple households with children`, `Single parent households with children`)) %>% 
     mutate(country = factor(country, levels = country), 
            member = case_when(country == "Taiwan" ~ "Taiwan", 
-                              country == "OECD average" ~ "A", 
-                              row.names(df) %in% 40:46 ~ "non-OECD", 
+                              country == grep("^OECD", df$country, value = TRUE) ~ "OECD-average", 
+                              row.names(df) %in% 39:46 ~ "non-OECD", 
                               TRUE ~ "OECD"), 
            group = case_when(member == "Taiwan" ~ 0, 
-                             member == "A" ~ 0,
+                             member == "OECD-average" ~ 0,
                              member == "OECD" ~ 0,
                              TRUE ~ 1
                              )
            )
 
-# plot --------------------------------------------------------------------
+# df$member <- as_factor(df$member)
+# df$group <- as_factor(df$group)
 
-p <- ggplot() + 
-    # bar
-    geom_bar(data = df, 
-             aes(x = `country`, y = `All households`, 
-                 fill = `member`), 
-             width = .5, 
-             stat = "identity") + 
-    ggthemes::theme_pander() + 
-    theme(axis.text.x = element_text(angle = 90, 
-                                     hjust = 1, 
-                                     vjust = 0.3))
-p
+saveRDS(df, "d:/R_wd/demo_dashboard/SF1.1/SF1.1.rds")
 
+# read file: 1.1.2 --------------------------------------------------------
 
+# read xlsx
+xls <- "d:/R_wd/demo_dashboard/[2020_May_11]SF_1_1_Family_size_and_composition graph update.xlsx"
+df <- readxl::read_xlsx(xls, sheet = 2, range = "A4:M50")
+
+# remove empty columns
+df <- df[colSums(!is.na(df)) > 0]
+# names
+names(df) <- c("country",
+               "Total Couple households", 
+               "Couple households with children", 
+               "Couple households without children",
+               "Total Single parent households", 
+               "Single mother households", 
+               "Single father households", 
+               "Single person households", 
+               "Other household types")
+# special case of Israel
+df[df$country == "Israel (e,k)", 9] <- df[df$country == "Israel (e,k)", 8]
+df[df$country == "Israel (e,k)", 8] <- NA_character_
+df <- sapply(df, na_if, "..") %>% 
+    as_tibble() 
+# as numeric and round
+df[ , 2:9] <- sapply(df[ , 2:9], as.numeric) %>% round(2)
+
+dPlot <- df %>% 
+    select(1:2, 5, 8, 9)
+dPlot <- dPlot %>% 
+    .[order(-.[["Total Couple households"]]), ] %>%
+    mutate(order = 1:n())
+
+plot_ly(dPlot, 
+        x = ~country, 
+        y = ~`Total Couple households`, 
+        type = "bar", 
+        name = "Couple") %>% 
+    add_trace(y = ~`Total Single parent households`, 
+              name = "Single Parent") %>% 
+    add_trace(y = ~`Single person households`, 
+              name = "Single Person") %>% 
+    add_trace(y = ~`Other household types`, 
+              name = "Other") %>% 
+    layout(barmode = "stack", 
+           xaxis = list(categoryorder = "array",
+                        categoryarray = dPlot$`country`))
 
 
 # SF 2.1 Fertility Rate ---------------------------------------------------
 
 #read and manipulate data
-xls <- "c:/Users/user/Downloads/¡¯SF_2_1_Fertility_rates_LUNG.xlsx"
+xls <- "c:/Users/user/Downloads/??SF_2_1_Fertility_rates_LUNG.xlsx"
 df <- read_xlsx(xls, sheet = 1, 
                 range = "L5:Q62", col_names = TRUE)
 head(df)
