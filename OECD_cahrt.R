@@ -5,11 +5,33 @@
 rm(list = ls()); cat("\14")
 devtools::source_url("https://raw.githubusercontent.com/caiyuntingcfrc/misc/function_poverty/func_ins.pack.R")
 # setwd
-# setwd("d:/R_wd/")
+setwd("d:/R_wd/demo_dashboard/SF1.1/")
 # option: scipen
 options(scipen = 999)
 # library
 ins.pack("readxl", "tidyverse", "plotly")
+
+
+# rank --------------------------------------------------------------------
+
+x <- c(1, 10, 2, 5, 5, 8, 3)
+dense_rank(x)
+min_rank(x)
+
+
+# region ------------------------------------------------------------------
+
+df <- readRDS("SF1.1.B.rds") %>% expss::if_na(0)
+region_list <- readxl::read_xlsx("region_rev.xlsx")
+
+# which
+w <- which(sapply(region_list$country, grepl, df$country), arr.ind = TRUE)
+
+df$region[w[ , 1]] <- region_list$region[w[ , 2]]
+
+saveRDS(df, "d:/R_wd/demo_dashboard/SF1.1/SF1.1.B.rds")
+
+
 
 # read file: 1.1.2 --------------------------------------------------------
 
@@ -42,39 +64,60 @@ sapply(df, class)
 # as numeric and round
 df[ , 2:9] <- sapply(df[ , 2:9], as.numeric) %>% round(2)
 # select columns
-dPlot <- df %>% 
-    select(1:2, 5, 8, 9) %>% 
+df <- df %>% 
+    # select(1:2, 5, 8, 9) %>% 
     mutate(member = case_when(country == "Taiwan" ~ "Taiwan", 
                               country == grep("^OECD", df$country, value = TRUE) ~ "OECD-average", 
                               row.names(df) %in% 41:46 ~ "non-OECD", 
-                              TRUE ~ "OECD"), 
-           group = case_when(member == "Taiwan" ~ 0, 
-                             member == "OECD-average" ~ 0,
-                             member == "OECD" ~ 0,
-                             TRUE ~ 1
-           ))
+                              TRUE ~ "OECD")
+           # group = case_when(member == "Taiwan" ~ 0, 
+                             # member == "OECD-average" ~ 0,
+                             # member == "OECD" ~ 0,
+                             # TRUE ~ 1
+           )
+
+# saveRDS(dPlot, "d:/R_wd/demo_dashboard/SF1.1/SF1.1.B.rds")
+
 
 # desc order: 'Total Couple households'
 dPlot <- dPlot %>% 
-    .[order(-.[["Total Couple households"]]), ] %>%
+    .[order(-.[["Total Single parent households"]]), ] %>%
     mutate(order = 1:n())
+    # highlight_key(., ~country)
+
+y <- "y"
+switch(y, 
+       single = "Total Single parent households")
+print(y)
 
 # plotly
-plot_ly(dPlot, 
-        x = ~country, 
-        y = ~`Total Couple households`, 
-        type = "bar", 
-        name = "Couple") %>% 
+plot_ly(dPlot) %>% 
+    p1 %>% 
+    # # couple
+    add_bars(x = ~`country`,
+             y = ~`Total Single parent households`,
+             opacity = 1,
+             marker = list(color = "#166273"),
+             name = "Single parent" ) %>%
     # sinle parent
-    add_trace(y = ~`Total Single parent households`, 
-              name = "Single Parent") %>% 
+    add_bars(x = ~`country`, 
+             y = ~`Total Couple households`, 
+             opacity = 1, 
+             marker = list(color = "#C1D9D0"), 
+             name = "Couple") %>% 
     # single person
-    add_trace(y = ~`Single person households`, 
-              name = "Single Person") %>% 
+    add_bars(x = ~`country`, 
+             y = ~`Single person households`, 
+             opacity = 1, 
+             marker = list(color = "#F23838"), 
+             name = "Single Person") %>% 
     # other
-    add_trace(y = ~`Other household types`, 
-              name = "Other") %>% 
+    add_bars(x = ~`country`, 
+             y = ~`Other household types`, 
+             opacity = 1, 
+             marker = list(color = "#F2B680"), 
+             name = "Other") %>% 
     # layout options
-    layout(barmode = "stack", 
+    layout(barmode = "stack",
            xaxis = list(categoryorder = "array",
                         categoryarray = dPlot$`country`))

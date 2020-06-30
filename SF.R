@@ -3,7 +3,8 @@
 
 # rm and clear console
 rm(list = ls()); cat("\14")
-devtools::source_url("https://raw.githubusercontent.com/caiyuntingcfrc/misc/function_poverty/func_ins.pack.R")
+source("~/Github_CFRC/misc/func_ins.pack.R")
+# devtools::source_url("https://raw.githubus ercontent.com/caiyuntingcfrc/misc/function_poverty/func_ins.pack.R")
 # setwd
 setwd("d:/R_wd/")
 # option: scipen
