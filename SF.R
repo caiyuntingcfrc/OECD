@@ -357,3 +357,7 @@ weighed <- mapply(rep, n, times = x)
 l <- unlist(weighed, use.names = FALSE)
 # freq table
 epiDisplay::tab1(l, decimal = 2, graph = TRUE)
+# one person
+d[a18 %in% c(101, 102), sf := 1]
+# living with one parent
+d[a18 %in% c(321, 331, 322, 332), sf := 1]
